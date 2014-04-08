@@ -12,13 +12,17 @@ else
     npm install .
     grunt
     cd ..
-    echo "Merging shared dependencies"
-    mv hybrid/dependencies/salesforcemobilesdk-shared/dependencies/* hybrid/dependencies/
     echo "Cleaning up salesforcemobilesdk-shared"
     mkdir tmplibs; mv hybrid/dependencies/salesforcemobilesdk-shared/libs/*.js tmplibs/
     mkdir tmptest; mv hybrid/dependencies/salesforcemobilesdk-shared/test/Mock*.js tmptest/
+    rm -rf hybrid/dependencies/*mobilesdk-shared
     rm -rf hybrid/dependencies/salesforcemobilesdk-shared
     mkdir hybrid/dependencies/salesforcemobilesdk-shared
     mv tmplibs hybrid/dependencies/salesforcemobilesdk-shared/libs
     mv tmptest hybrid/dependencies/salesforcemobilesdk-shared/test
+    ln -s salesforcemobilesdk-shared/libs hybrid/dependencies/mobilesdk-shared
+    echo "Moving up mobile-ui-elements"
+    rm -rf hybrid/mobile-ui-elements
+    mv hybrid/dependencies/mobile-ui-elements/elements hybrid/mobile-ui-elements
+    rm -rf hybrid/dependencies/mobile-ui-elements
 fi

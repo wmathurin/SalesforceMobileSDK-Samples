@@ -2,16 +2,42 @@
     "name": "salesforcemobilesdk-samples",
     "version": "2.3.0",
     "dependencies": {
-        "ratchet": "1.0.2",
         "ratchet2": "twbs/ratchet#v2.0.2",
         "fastclick": "0.6.2",
-        "salesforcemobilesdk-shared": "wmathurin/SalesforceMobileSDK-Shared#unstable23"
+        "salesforcemobilesdk-shared": "wmathurin/SalesforceMobileSDK-Shared#unstable23",
+        "mobile-ui-elements": "wmathurin/mobile-ui-elements#unstable23"
     },
     "exportsOverride": {
-        "ratchet": {
+        "modernizr": {
+            ".": "modernizr*.js"
+        },
+        "jquery": {
             ".": [
-                "dist/*.css"
+                "jquery.js",
+                "jquery.min.js"
             ]
+        },
+        "backbone": {
+            ".": "backbone*.js"
+        },
+        "underscore": {
+            ".": "underscore*.js"
+        },
+        "polymer": {
+            "Polymer/.": [
+                "polymer.js",
+                "polymer.html",
+                "polymer-body.html"
+            ]
+        },
+        "polymer-*": {
+            "Polymer/.": "polymer-*.*"
+        },
+        "ratchet": {
+            ".": "dist/."
+        },
+        "web-animations-js": {
+            "Polymer/.": "web-animations.js"
         },
         "ratchet2": {
             ".": [
