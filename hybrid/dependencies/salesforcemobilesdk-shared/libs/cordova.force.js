@@ -580,6 +580,11 @@ cordova.define("com.salesforce.plugin.smartstore", function (require, exports, m
     };
     
     // ====== Soup manipulation ======
+    var getDatabaseSize = function(successCB, errorCB) {
+        console.log("SmartStore.getDatabaseSize");
+        exec(SALESFORCE_MOBILE_SDK_VERSION, successCB, errorCB, SERVICE, "pgGetDatabaseSize", []);
+    };
+
     var registerSoup = function (soupName, indexSpecs, successCB, errorCB) {
         console.log("SmartStore.registerSoup: '" + soupName + "' indexSpecs: " + JSON.stringify(indexSpecs));
         exec(SALESFORCE_MOBILE_SDK_VERSION, successCB, errorCB, SERVICE,
@@ -707,6 +712,7 @@ cordova.define("com.salesforce.plugin.smartstore", function (require, exports, m
         buildRangeQuerySpec: buildRangeQuerySpec,
         buildLikeQuerySpec: buildLikeQuerySpec,
         buildSmartQuerySpec: buildSmartQuerySpec,
+        getDatabaseSize: getDatabaseSize,
         registerSoup: registerSoup,
         removeSoup: removeSoup,
         showInspector: showInspector,
@@ -734,4 +740,27 @@ navigator.smartstore = cordova.require("com.salesforce.plugin.smartstore");
 var SoupIndexSpec = navigator.smartstore.SoupIndexSpec;
 var QuerySpec = navigator.smartstore.QuerySpec;
 var StoreCursor = navigator.smartstore.StoreCursor;
+
+cordova.define("com.salesforce.plugin.ibeaconmanager", function(require, exports, module) {
+    var SERVICE = "com.salesforce.ibeaconmanager";
+
+    var exec = require("com.salesforce.util.exec").exec;
+
+    var startRanging = function(successCB, errorCB) {
+        exec(SALESFORCE_MOBILE_SDK_VERSION, successCB, errorCB, SERVICE, "startRanging", []);
+    };
+
+    var stopRanging = function(successCB, errorCB) {
+        exec(SALESFORCE_MOBILE_SDK_VERSION, successCB, errorCB, SERVICE, "stopRanging", []);
+    };
+
+
+    /**
+     * Part of the module that is public
+     */
+    module.exports = {
+        startRanging: startRanging,
+        stopRanging: stopRanging
+    };
+});
 
