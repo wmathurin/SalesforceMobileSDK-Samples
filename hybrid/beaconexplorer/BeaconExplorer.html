@@ -36,7 +36,7 @@
     // Dummy data
     var beacons = [];
     for (var i=0; i<10; i++) {
-        beacons.push({uuid:'uuid' + i, major: i, minor: 10*i, proximity:i});
+        beacons.push({uuid:'uuid' + i, major: i, minor: 10*i, proximity:i, accuracy: Math.random()*100});
     }
 </script>
 <!-- End Local Testing -->
@@ -68,9 +68,9 @@
 
 <!-- --------------------------------------- Beacon list item template ---------------------------------------------- -->
 <script id="beacon-list-item" type="text/template">
-  <pre  class="important"><%= uuid %></pre>
-  <pre class="small"><%= major %>.<%= minor%></pre>
-  <span class="pull-right btn btn-positive big"><%= proximity %> m</span>
+  <pre  class="important"><%= uuid %> . <%= major %> . <%= minor%></pre>
+  <pre class="small">Last seen: <%= lastSeen %></pre>
+  <span class="pull-right btn btn-positive big"><%= accuracy %> m</span>
 </script>
 
 <script>
@@ -84,14 +84,33 @@ app.views.SearchPage = Backbone.View.extend({
         "click .toggleRanging": "toggleRanging"
     },
 
+    mergeBeacons: function(beacons) {
+        var now = (new Date()).toLocaleTimeString();
+
+        var uniqBeacons = {};
+        _.each(this.beacons, function(beacon) {
+            uniqBeacons[beacon.uuid + "." + beacon.major + "." + beacon.minor] = beacon;
+            console.log("old:"+ beacon.uuid + "." + beacon.major + "." + beacon.minor);
+        });
+        _.each(beacons, function(beacon) {
+            beacon.accuracy = Math.round(beacon.accuracy);
+            beacon.lastSeen = now;
+            uniqBeacons[beacon.uuid + "." + beacon.major + "." + beacon.minor] = beacon;
+            console.log("new:"+ beacon.uuid + "." + beacon.major + "." + beacon.minor);
+        });
+        this.beacons = _.values(uniqBeacons)
+        this.model.reset(this.beacons);
+    },
+
     initialize: function() {
         var self = this;
         this.ranging = false;
-        this.model = new Backbone.Collection(window.beacons || []);
-        this.model.comparator = "proximity";
+        this.beacons = window.beacons || [];
+        this.model = new Backbone.Collection(this.beacons);
+        this.model.comparator = 'accuracy';
         this.listView = new app.views.BeaconListView({model: this.model});
         document.addEventListener("didRangeBeaconsInRegion", function(event) {
-            self.model.reset(event.detail);
+            self.mergeBeacons(event.detail);
         });
     },
 
