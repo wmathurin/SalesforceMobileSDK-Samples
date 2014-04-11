@@ -6,6 +6,13 @@
 <link rel="stylesheet" href="css/styles.css"/>
 <link rel="stylesheet" href="css/ratchet.css"/>
 <link rel="stylesheet" href="css/ratchet-theme-android.css"/>
+
+<style>
+    .big {
+        font-size: 24px;
+    }
+</style>
+
 </head>
 
 <body>
@@ -50,7 +57,7 @@
 <!-- --------------------------------------- Search page template ------------------------------------------------- -->
 <script id="search-page" type="text/template">
   <header class="bar bar-nav">
-    <a class="btn btn-nav pull-right toggleRanging">Start Ranging</a>
+    <a class="btn btn-nav pull-right btn-positive toggleRanging">Start Ranging</a>
     <h1 class="title">Beacons</h1>
   </header>
 
@@ -61,8 +68,9 @@
 
 <!-- --------------------------------------- Beacon list item template ---------------------------------------------- -->
 <script id="beacon-list-item" type="text/template">
-  <pre><span class="important"><%= uuid %> <%= major %> <%= minor %></span></pre>
-  <span class="pull-right badge badge-positive"><%= proximity %> m</span>
+  <pre  class="important"><%= uuid %></pre>
+  <pre class="small"><%= major %>.<%= minor%></pre>
+  <span class="pull-right btn btn-positive big"><%= proximity %> m</span>
 </script>
 
 <script>
@@ -103,6 +111,7 @@ app.views.SearchPage = Backbone.View.extend({
         }
         // XXX should pass successCB and errorCB and only toggle the button if action completes successfully
         $(".toggleRanging", this.el).html(this.ranging?"Stop Ranging":"Start Ranging");
+        $(".toggleRanging", this.el).removeClass(this.ranging?"btn-positive":"btn-negative").addClass(this.ranging?"btn-negative":"btn-positive");
     }
 });
 
