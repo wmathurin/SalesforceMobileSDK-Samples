@@ -42,6 +42,7 @@
 <!-- --------------------------------------- Search page template ------------------------------------------------- -->
 <script id="search-page" type="text/template">
   <header class="bar-title">
+    <a class="button fakeRangingEvent">Fake Ranging Event</a>
     <h1 class="title">Beacons</h1>
     <a class="button toggleRanging">Start Ranging</a>
   </header>
@@ -67,13 +68,18 @@ app.views.SearchPage = Backbone.View.extend({
     template: _.template($("#search-page").html()),
 
     events: {
-        "click .toggleRanging": toggleRanging
+        "click .toggleRanging": "toggleRanging",
+        "click .fakeRangingEvent": "fakeRangingEvent"
     },
 
     initialize: function() {
+        var self = this;
         this.ranging = false;
         this.model = new Backbone.Collection();
         this.listView = new app.views.BeaconListView({model: this.model});
+        document.addEventListener("didRangeBeaconsInRegion", function(event) {
+            self.model.reset(_.union(self.model.models, event.detail));
+        });
     },
 
     render: function(eventName) {
@@ -91,9 +97,14 @@ app.views.SearchPage = Backbone.View.extend({
             cordova.require("com.salesforce.plugin.ibeaconmanager").stopRanging();
         }
         // XXX should pass successCB and errorCB and only toggle the button if action completes successfully
-        $(".toggleRangin", this.el).html(this.ranging?"Stop Ranging":"Start Ranging");        
-    }
+        $(".toggleRanging", this.el).html(this.ranging?"Stop Ranging":"Start Ranging");        
+    },
 
+    fakeRangingEvent: function() {
+        var beacon = {uuid:("" + new Date()), major: 1, minor:2, proximity:3};
+        var event = new CustomEvent("didRangeBeaconsInRegion", {detail:[beacon]});
+        document.dispatchEvent(event);
+    }
 });
 
 app.views.BeaconListView = Backbone.View.extend({
