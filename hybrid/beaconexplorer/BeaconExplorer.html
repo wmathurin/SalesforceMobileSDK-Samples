@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
 <link rel="stylesheet" href="css/styles.css"/>
 <link rel="stylesheet" href="css/ratchet.css"/>
+<link rel="stylesheet" href="css/ratchet-theme-android.css"/>
 </head>
 
 <body>
@@ -24,6 +25,13 @@
 <script src="js/fastclick.js"></script>
 <script src="js/stackrouter.js"></script>
 <script src="js/auth_local.js"></script>
+<script>
+    // Dummy data
+    var beacons = [];
+    for (var i=0; i<10; i++) {
+        beacons.push({uuid:'uuid' + i, major: i, minor: 10*i, proximity:i});
+    }
+</script>
 <!-- End Local Testing -->
 
 <!-- Container -->
@@ -41,23 +49,20 @@
 
 <!-- --------------------------------------- Search page template ------------------------------------------------- -->
 <script id="search-page" type="text/template">
-  <header class="bar-title">
-    <a class="button fakeRangingEvent">Fake Ranging Event</a>
+  <header class="bar bar-nav">
+    <a class="btn btn-nav pull-right toggleRanging">Start Ranging</a>
     <h1 class="title">Beacons</h1>
-    <a class="button toggleRanging">Start Ranging</a>
   </header>
 
   <div class="content">
-    <ul class="list"></ul>
+    <ul class="table-view"></ul>
   </div>
 </script>
 
 <!-- --------------------------------------- Beacon list item template ---------------------------------------------- -->
 <script id="beacon-list-item" type="text/template">
-  <div class="details-short">
-    <b><%= uuid %>.<%= major %>.<%= minor %></b><br/>
-    Distance<%= proximity %> meters
-  </div>
+  <pre><span class="important"><%= uuid %> <%= major %> <%= minor %></span></pre>
+  <span class="pull-right badge badge-positive"><%= proximity %> m</span>
 </script>
 
 <script>
@@ -68,17 +73,17 @@ app.views.SearchPage = Backbone.View.extend({
     template: _.template($("#search-page").html()),
 
     events: {
-        "click .toggleRanging": "toggleRanging",
-        "click .fakeRangingEvent": "fakeRangingEvent"
+        "click .toggleRanging": "toggleRanging"
     },
 
     initialize: function() {
         var self = this;
         this.ranging = false;
-        this.model = new Backbone.Collection();
+        this.model = new Backbone.Collection(window.beacons || []);
+        this.model.comparator = "proximity";
         this.listView = new app.views.BeaconListView({model: this.model});
         document.addEventListener("didRangeBeaconsInRegion", function(event) {
-            self.model.reset(_.union(self.model.models, event.detail));
+            self.model.reset(event.detail);
         });
     },
 
@@ -90,20 +95,14 @@ app.views.SearchPage = Backbone.View.extend({
 
     toggleRanging: function() {
         this.ranging = !this.ranging;
-        if (this.ranging) { 
+        if (this.ranging) {
             cordova.require("com.salesforce.plugin.ibeaconmanager").startRanging();
         }
         else {
             cordova.require("com.salesforce.plugin.ibeaconmanager").stopRanging();
         }
         // XXX should pass successCB and errorCB and only toggle the button if action completes successfully
-        $(".toggleRanging", this.el).html(this.ranging?"Stop Ranging":"Start Ranging");        
-    },
-
-    fakeRangingEvent: function() {
-        var beacon = {uuid:("" + new Date()), major: 1, minor:2, proximity:3};
-        var event = new CustomEvent("didRangeBeaconsInRegion", {detail:[beacon]});
-        document.dispatchEvent(event);
+        $(".toggleRanging", this.el).html(this.ranging?"Stop Ranging":"Start Ranging");
     }
 });
 
@@ -130,7 +129,7 @@ app.views.BeaconListItemView = Backbone.View.extend({
     template: _.template($("#beacon-list-item").html()),
 
     render: function(eventName) {
-        $(this.el).html(this.template(this.model.toJSON()));
+        $(this.el).addClass("table-view-cell").html(this.template(this.model.toJSON()));
         return this;
     },
 
