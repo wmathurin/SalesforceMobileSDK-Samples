@@ -32,6 +32,12 @@ function appStart(creds)
     // Force init
     Force.init(creds, null, null, cordova.require("com.salesforce.plugin.oauth").forcetkRefresh);
 
+    // Register for push
+    window.plugins.pushNotification.register(
+        function(result) {alert("Registration succeeded:" + JSON.stringify(result));}, 
+        function(err) {alert("Registration failed:" + JSON.stringify(err));}, 
+        {"senderID":"321017030065", "ecb":"onNotification"});
+
     // router
     app.router = new app.Router();
 
@@ -40,3 +46,9 @@ function appStart(creds)
 }
 
 
+function onNotification(message) {
+    alert(JSON.stringify(message));
+    if (message["payload"] && message["payload"]["Id"] && !message["foreground"]) {
+        app.router.editAccount(message["payload"]["Id"], Force.CACHE_MODE.SERVER_FIRST);
+    }
+}
